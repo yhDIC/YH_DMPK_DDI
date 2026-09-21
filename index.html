@@ -53,6 +53,8 @@ body{margin:0;background:var(--paper);color:var(--graphite);
 .tool:focus-visible{outline:2px solid var(--graphite);outline-offset:2px}
 .toolsep{width:1px;height:20px;background:var(--rule-2);margin:0 4px}
 .toolnote{font-size:12px;color:var(--flag)}
+.toolpush{margin-left:auto}
+section{scroll-margin-top:84px}
 
 /* modal */
 .modal{position:fixed;inset:0;z-index:60;background:rgba(35,38,43,.5);
@@ -164,6 +166,11 @@ footer p{margin:0}
   <button class="tool" id="bFda">FDA M12 guidance (PDF)</button>
   <button class="tool" id="bQa">FDA M12 Q&amp;A (PDF)</button>
   <span class="toolnote" id="popHint"></span>
+  <span class="toolpush"></span>
+  <button class="tool" id="bReset">Restore example values</button>
+  <button class="tool" id="bClear">Clear all inputs</button>
+  <span class="toolsep"></span>
+  <button class="tool" id="bOverall">Overall assessment</button>
 </div></nav>
 
 <div class="band"><div class="wrap"><div class="bandin" id="band"></div></div></div>
@@ -321,7 +328,7 @@ footer p{margin:0}
 </section>
 
 <!-- 9 -->
-<section>
+<section id="overall">
   <div class="shead"><span class="num">9</span><h2>Overall assessment</h2></div>
   <p class="sdesc">Every enzyme and transporter that exceeds its cut-off at one or more dose levels, grouped by mechanism and by the model that flagged it, with the next step for each group.</p>
   <div class="body"><div class="tw"><table id="tOv"></table></div></div>
@@ -337,8 +344,6 @@ footer p{margin:0}
 <div class="acts">
   <button id="bCsv">Download CSV</button>
   <button id="bPrint">Print / PDF</button>
-  <button id="bReset">Restore example values</button>
-  <button id="bClear">Clear all inputs</button>
 </div>
 
 </main>
@@ -873,7 +878,14 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !wfModal.hidden)
 
 document.getElementById("bPrint").addEventListener("click",()=>window.print());
 document.getElementById("bReset").addEventListener("click",()=>{ seed(false); buildAll(); });
-document.getElementById("bClear").addEventListener("click",()=>{ seed(true); buildAll(); });
+document.getElementById("bClear").addEventListener("click",()=>{
+  if(!window.confirm("Clear every input on this page? The example values can be restored afterwards.")) return;
+  seed(true); buildAll();
+});
+document.getElementById("bOverall").addEventListener("click",()=>{
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById("overall").scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"start"});
+});
 document.getElementById("bCsv").addEventListener("click",()=>{
   const D = derived(), L = [], q = v => '"'+String(v??"").replace(/"/g,'""')+'"';
   const doses = D.map((d,i)=> d.dose!==null ? d.dose+" mg" : "Dose "+(i+1));
