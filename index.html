@@ -84,15 +84,15 @@ section{scroll-margin-top:84px}
 /* section */
 section{padding:34px 0 8px;border-bottom:1px solid var(--rule)}
 section:last-of-type{border-bottom:0}
-.shead{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
-.shead .num{font-family:"Newsreader",serif;font-size:15px;color:var(--muted);min-width:26px}
+.shead{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.shead .num{font-family:"Newsreader",serif;font-size:30px;line-height:1;font-weight:500;color:var(--ink-2);min-width:34px}
 .shead h2{font-family:"Newsreader",serif;font-weight:500;font-size:23px;margin:0;letter-spacing:-.005em}
-.sdesc{margin:0 0 18px 38px;color:var(--ink-2)}
-.crits{margin:4px 0 8px 38px;display:flex;flex-wrap:wrap;gap:8px}
+.sdesc{margin:0 0 18px 46px;color:var(--ink-2)}
+.crits{margin:4px 0 8px 46px;display:flex;flex-wrap:wrap;gap:8px}
 .crit{display:inline-block;padding:4px 12px;font-size:14px;font-weight:600;color:var(--flag);
   background:var(--flag-bg);border:1px solid var(--flag-bd);border-left:3px solid var(--flag);border-radius:2px}
 .crit small{font-weight:400;color:var(--ink-2);font-size:12px;margin-left:6px}
-.rule{margin-left:38px;color:var(--muted);font-size:12.5px;margin-bottom:14px}
+.rule{margin-left:46px;color:var(--muted);font-size:12.5px;margin-bottom:14px}
 .crit.sm{font-size:12px;padding:1px 8px;border-left-width:2px;margin-left:10px;vertical-align:1px}
 #tOv tr.grp td{background:#F6F6F2;text-align:left;white-space:normal;padding:10px 10px 8px;
   border-top:1px solid var(--rule-2)}
@@ -104,7 +104,7 @@ section:last-of-type{border-bottom:0}
 #tOv td.item .crit.sm{font-weight:600}
 .rule code{font-family:"Public Sans",sans-serif;background:var(--fixed-bg);padding:1px 6px;
   border-radius:2px;color:var(--ink-2)}
-.body{margin-left:38px}
+.body{margin-left:46px}
 @media(max-width:760px){.sdesc,.rule,.body,.crits,.note{margin-left:0}}
 
 /* tables */
@@ -131,7 +131,7 @@ input:focus{outline:2px solid var(--graphite);outline-offset:-1px;background:#ff
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 
-.legend{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 0 38px;
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 0 46px;
   color:var(--muted);font-size:12.5px;align-items:center}
 .legend i{display:inline-block;width:13px;height:13px;border:1px solid var(--rule-2);
   margin-right:6px;vertical-align:-2px;border-radius:2px}
@@ -140,8 +140,8 @@ input[type=number]{-moz-appearance:textfield}
 .legend .i3{background:#fff}
 .legend .i4{background:var(--flag-bg);border-color:var(--flag-bd)}
 
-.note{margin:0 0 6px 38px;color:var(--muted);font-size:12.5px}
-.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:22px 0 40px 38px}
+.note{margin:0 0 6px 46px;color:var(--muted);font-size:12.5px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:22px 0 40px 46px}
 button{font:inherit;font-size:13px;padding:6px 14px;background:#fff;color:var(--graphite);
   border:1px solid var(--rule-2);border-radius:2px;cursor:pointer}
 button:hover{background:var(--graphite);color:#fff;border-color:var(--graphite)}
@@ -453,7 +453,15 @@ function head(tbl, labels){
   labels.forEach(l => tr.appendChild(el("th",{html:l})));
   tbl.appendChild(el("thead",{},[tr]));
 }
-const doseCols = suf => Array.from({length:ND},(_,i)=>`Dose ${i+1}${suf?'<br><span class="unit">'+suf+'</span>':''}`);
+const doseCols = (suf, live=true) => Array.from({length:ND},(_,i)=>
+  (live ? `<span class="dlab" data-i="${i}">Dose ${i+1}</span>` : `Dose ${i+1}`) +
+  (suf ? '<br><span class="unit">'+suf+'</span>' : ''));
+function refreshDoseLabels(D){
+  document.querySelectorAll(".dlab").forEach(n=>{
+    const i=+n.dataset.i, v=D[i].dose;
+    n.textContent = v!==null ? v+" mg" : "Dose "+(i+1);
+  });
+}
 
 /* ───────────────────────── derived exposure ───────────────────────── */
 function derived(){
@@ -576,7 +584,7 @@ function buildConst(){
 
 function buildDose(){
   const t=document.getElementById("tDose"); t.innerHTML="";
-  head(t,["Parameter",...doseCols(""),"Unit"]);
+  head(t,["Parameter",...doseCols("",false),"Unit"]);
   const tb=el("tbody"); R.dose=[];
   const rowIn=(lab,arr,unit)=>{ const tr=el("tr"); tr.appendChild(el("td",{text:lab}));
     for(let i=0;i<ND;i++) tr.appendChild(inputCell(()=>arr[i], v=>arr[i]=v));
@@ -793,7 +801,7 @@ function update(){
   calcTrans(D).forEach((r,i)=>r.vals.forEach((v,j)=>
     setCell(R.tr[i][j],v,{flag:v!==null&&v>=r.t.cut,d:3})));
 
-  renderOverall(D); renderBand(D);
+  renderOverall(D); renderBand(D); refreshDoseLabels(D);
 }
 const recompute = update;
 
