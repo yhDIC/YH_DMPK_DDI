@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>In Vitro DDI Risk Assessment — ICH M12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF8; --panel:#FFFFFF; --graphite:#23262B; --ink-2:#464C53;
+  --rule:#DDDED8; --rule-2:#C2C5BD; --muted:#6B7169;
+  --in-bg:#EEF4FB; --in-bd:#C6D8EC; --in-ink:#1A4E8A;
+  --fixed-bg:#F1F1EC;
+  --flag:#8C2230; --flag-bg:#F8E9EB; --flag-bd:#E3C3C8;
+  --ok:#4E5A54;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--graphite);
+  font-family:"Public Sans",system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;
+  font-variant-numeric:tabular-nums}
+.wrap{max-width:1260px;margin:0 auto;padding:0 22px}
+
+/* masthead */
+.mast{padding:40px 0 24px;border-bottom:1px solid var(--rule-2)}
+.mast h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:34px;line-height:1.15;
+  margin:0 0 10px;letter-spacing:-.01em}
+.mast p{margin:0;color:var(--ink-2)}
+
+/* dose band */
+.band{position:sticky;top:0;z-index:30;background:var(--graphite);color:#EDEEE9;
+  box-shadow:0 1px 4px rgba(35,38,43,.2)}
+.bandin{display:flex;align-items:stretch;gap:0;overflow-x:auto;scrollbar-width:none}
+.bandin::-webkit-scrollbar{display:none}
+.bandlab{flex:0 0 auto;padding:10px 18px 10px 0;display:flex;flex-direction:column;justify-content:center}
+.bandlab b{font-weight:500;font-size:13px}
+.bandlab span{font-size:11.5px;color:#9BA29A}
+.dose{flex:1 1 0;min-width:112px;padding:9px 12px 10px;border-left:1px solid rgba(255,255,255,.14)}
+.dose .d{font-size:12px;color:#A7ADA5}
+.dose .n{font-size:19px;font-weight:600;margin-top:1px;font-family:"Newsreader",serif}
+.dose .s{font-size:11.5px;color:#9BA29A}
+.dose[data-hit="1"] .n{color:#F0A0A8}
+.dose[data-hit="0"] .n{color:#A8CBB4}
+
+/* toolbar */
+.tools{background:var(--panel);border-bottom:1px solid var(--rule)}
+.toolsin{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 22px}
+.tool{font:inherit;font-size:12.5px;padding:5px 12px;background:#fff;color:var(--graphite);
+  border:1px solid var(--rule-2);border-radius:2px;cursor:pointer}
+.tool:hover{background:var(--graphite);color:#fff;border-color:var(--graphite)}
+.tool:focus-visible{outline:2px solid var(--graphite);outline-offset:2px}
+.toolsep{width:1px;height:20px;background:var(--rule-2);margin:0 4px}
+.toolnote{font-size:12px;color:var(--flag)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(35,38,43,.5);
+  display:flex;align-items:flex-start;justify-content:center;padding:28px 18px;overflow:auto}
+.modal[hidden]{display:none}
+.sheet{background:var(--panel);border:1px solid var(--rule-2);max-width:840px;width:100%;
+  box-shadow:0 8px 32px rgba(35,38,43,.28)}
+.sheethead{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 20px;border-bottom:1px solid var(--rule)}
+.sheethead h3{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:20px;margin:0}
+.sheetbody{padding:18px 20px 24px}
+.wf{width:100%;height:auto;display:block}
+.wf rect{stroke-width:1}
+.wf .s1 rect{fill:#F1F1EC;stroke:var(--rule-2)}
+.wf .s2 rect{fill:var(--in-bg);stroke:var(--in-bd)}
+.wf .s3 rect{fill:#fff;stroke:var(--rule-2)}
+.wf .s4 rect{fill:var(--flag-bg);stroke:var(--flag-bd)}
+.wf .t{font-family:"Public Sans",sans-serif;font-size:14px;font-weight:500;fill:var(--graphite);
+  text-anchor:middle;dominant-baseline:middle}
+.wf .t.f{fill:var(--flag)}
+.wf .e{font-family:"Public Sans",sans-serif;font-size:12.5px;fill:var(--muted);
+  text-anchor:middle;dominant-baseline:middle}
+.wf .l{font-family:"Public Sans",sans-serif;font-size:12px;fill:var(--muted);dominant-baseline:middle}
+.wf .a{stroke:#5B6168;stroke-width:1.6;fill:none;marker-end:url(#wfa)}
+.wfnote{margin:14px 0 0;color:var(--ink-2);font-size:12.5px}
+
+/* section */
+section{padding:34px 0 8px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.shead{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.shead .num{font-family:"Newsreader",serif;font-size:15px;color:var(--muted);min-width:26px}
+.shead h2{font-family:"Newsreader",serif;font-weight:500;font-size:23px;margin:0;letter-spacing:-.005em}
+.sdesc{margin:0 0 18px 38px;color:var(--ink-2)}
+.crits{margin:4px 0 8px 38px;display:flex;flex-wrap:wrap;gap:8px}
+.crit{display:inline-block;padding:4px 12px;font-size:14px;font-weight:600;color:var(--flag);
+  background:var(--flag-bg);border:1px solid var(--flag-bd);border-left:3px solid var(--flag);border-radius:2px}
+.crit small{font-weight:400;color:var(--ink-2);font-size:12px;margin-left:6px}
+.rule{margin-left:38px;color:var(--muted);font-size:12.5px;margin-bottom:14px}
+.crit.sm{font-size:12px;padding:1px 8px;border-left-width:2px;margin-left:10px;vertical-align:1px}
+#tOv tr.grp td{background:#F6F6F2;text-align:left;white-space:normal;padding:10px 10px 8px;
+  border-top:1px solid var(--rule-2)}
+#tOv .mech{font-family:"Newsreader",Georgia,serif;font-size:16px;font-weight:500;color:var(--graphite);margin-bottom:4px}
+#tOv .gline{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0}
+#tOv .model{font-weight:600;font-size:13px;color:var(--ink-2)}
+#tOv .act{font-size:12px;color:var(--muted);margin-left:14px}
+#tOv td.item{padding-left:22px;font-weight:500}
+#tOv td.item .crit.sm{font-weight:600}
+.rule code{font-family:"Public Sans",sans-serif;background:var(--fixed-bg);padding:1px 6px;
+  border-radius:2px;color:var(--ink-2)}
+.body{margin-left:38px}
+@media(max-width:760px){.sdesc,.rule,.body,.crits,.note{margin-left:0}}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--panel);margin-bottom:14px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 10px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+th{font-weight:500;font-size:11.5px;color:var(--muted);background:#F6F6F2;
+  border-bottom:1px solid var(--rule-2);vertical-align:bottom}
+th:first-child,td:first-child{text-align:left;font-weight:500}
+tbody tr:last-child td{border-bottom:0}
+td.calc{color:var(--ink-2)}
+td.na{color:#A8ABA4}
+td.flag{background:var(--flag-bg);color:var(--flag);font-weight:600;
+  box-shadow:inset 2px 0 0 var(--flag)}
+td.fixed{background:var(--fixed-bg)}
+tr.sub td:first-child{padding-left:22px;font-weight:400;color:var(--ink-2)}
+.unit{color:#9B9F97;font-weight:400}
+
+input{font:inherit;font-size:13px;width:78px;padding:3px 7px;text-align:right;
+  background:var(--in-bg);border:1px solid var(--in-bd);border-radius:2px;color:var(--in-ink);
+  font-variant-numeric:tabular-nums}
+input.wide{width:104px;text-align:left}
+input:focus{outline:2px solid var(--graphite);outline-offset:-1px;background:#fff}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 0 38px;
+  color:var(--muted);font-size:12.5px;align-items:center}
+.legend i{display:inline-block;width:13px;height:13px;border:1px solid var(--rule-2);
+  margin-right:6px;vertical-align:-2px;border-radius:2px}
+.legend .i1{background:var(--in-bg);border-color:var(--in-bd)}
+.legend .i2{background:var(--fixed-bg)}
+.legend .i3{background:#fff}
+.legend .i4{background:var(--flag-bg);border-color:var(--flag-bd)}
+
+.note{margin:0 0 6px 38px;color:var(--muted);font-size:12.5px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 40px 38px}
+button{font:inherit;font-size:13px;padding:6px 14px;background:#fff;color:var(--graphite);
+  border:1px solid var(--rule-2);border-radius:2px;cursor:pointer}
+button:hover{background:var(--graphite);color:#fff;border-color:var(--graphite)}
+button:focus-visible{outline:2px solid var(--graphite);outline-offset:2px}
+footer{border-top:1px solid var(--rule-2);padding:20px 0 48px;color:var(--muted);font-size:12.5px}
+footer p{margin:0}
+@media print{.band,.acts,.tools,.modal{display:none}body{background:#fff;font-size:10.5px}
+  section{break-inside:avoid;border-bottom:1px solid #ccc}}
+</style>
+</head>
+<body>
+
+<header class="wrap mast">
+  <h1>In vitro drug–drug interaction risk assessment</h1>
+  <p>Assess the DDI potential of an investigational drug from in vitro data and human exposure, and determine whether further evaluation by mechanistic modeling or a clinical DDI study is warranted, following ICH M12 Drug Interaction Studies (Step 4, May 2024; issued by FDA in August 2024).</p>
+</header>
+
+<nav class="tools"><div class="wrap toolsin">
+  <button class="tool" id="bWorkflow">Workflow</button>
+  <span class="toolsep"></span>
+  <button class="tool" id="bIch">ICH M12 guideline (PDF)</button>
+  <button class="tool" id="bFda">FDA M12 guidance (PDF)</button>
+  <button class="tool" id="bQa">FDA M12 Q&amp;A (PDF)</button>
+  <span class="toolnote" id="popHint"></span>
+</div></nav>
+
+<div class="band"><div class="wrap"><div class="bandin" id="band"></div></div></div>
+
+<div class="modal" id="wfModal" role="dialog" aria-modal="true" aria-labelledby="wfTitle" hidden>
+  <div class="sheet">
+    <div class="sheethead">
+      <h3 id="wfTitle">Assessment workflow</h3>
+      <button class="tool" id="wfClose" aria-label="Close">Close</button>
+    </div>
+    <div class="sheetbody">
+      <svg viewBox="0 0 760 660" class="wf" role="img" aria-label="DDI assessment workflow">
+        <defs><marker id="wfa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+          orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5B6168"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+        <g class="s1"><rect x="210" y="30" width="250" height="52" rx="8"/>
+          <text class="t" x="335" y="60">Determine evaluation scope</text></g>
+        <line x1="335" y1="82" x2="335" y2="98" class="a"/>
+
+        <g class="s1"><rect x="210" y="104" width="250" height="52" rx="8"/>
+          <text class="t" x="335" y="134">In vitro assays</text></g>
+        <g class="s1"><rect x="520" y="104" width="180" height="52" rx="8"/>
+          <text class="t" x="610" y="134">Human exposure</text></g>
+        <path d="M610 156 L610 206 L472 206" class="a" fill="none"/>
+        <line x1="335" y1="156" x2="335" y2="172" class="a"/>
+
+        <g class="s2"><rect x="210" y="178" width="250" height="56" rx="8"/>
+          <text class="t" x="335" y="199">Model-based</text>
+          <text class="t" x="335" y="219">DDI risk assessment</text></g>
+        <line x1="335" y1="234" x2="335" y2="268" class="a"/>
+
+        <g class="s2"><rect x="210" y="274" width="250" height="56" rx="8"/>
+          <text class="t" x="335" y="304">Basic model</text></g>
+        <line x1="460" y1="302" x2="514" y2="302" class="a"/>
+        <g class="s3"><rect x="520" y="276" width="180" height="52" rx="8"/>
+          <text class="e" x="610" y="296">Risk excluded</text>
+          <text class="e" x="610" y="314">Stop</text></g>
+        <line x1="335" y1="330" x2="335" y2="364" class="a"/>
+        <text class="l" x="347" y="349">Risk not excluded</text>
+
+        <g class="s2"><rect x="210" y="370" width="250" height="56" rx="8"/>
+          <text class="t" x="335" y="400">Mechanistic static model</text></g>
+        <line x1="460" y1="398" x2="514" y2="398" class="a"/>
+        <g class="s3"><rect x="520" y="372" width="180" height="52" rx="8"/>
+          <text class="e" x="610" y="392">Risk excluded</text>
+          <text class="e" x="610" y="410">Stop</text></g>
+        <line x1="335" y1="426" x2="335" y2="460" class="a"/>
+        <text class="l" x="347" y="445">Risk not excluded</text>
+        <path d="M335 440 L150 440 L150 588 L204 588" class="a" fill="none"/>
+
+        <g class="s2"><rect x="210" y="466" width="250" height="56" rx="8"/>
+          <text class="t" x="335" y="487">Mechanistic dynamic model</text>
+          <text class="t" x="335" y="507">(PBPK)</text></g>
+        <line x1="460" y1="494" x2="514" y2="494" class="a"/>
+        <g class="s3"><rect x="520" y="468" width="180" height="52" rx="8"/>
+          <text class="e" x="610" y="488">Risk excluded</text>
+          <text class="e" x="610" y="506">Stop</text></g>
+        <line x1="335" y1="522" x2="335" y2="556" class="a"/>
+        <text class="l" x="347" y="541">Risk not excluded</text>
+
+        <g class="s4"><rect x="210" y="562" width="250" height="52" rx="8"/>
+          <text class="t f" x="335" y="592">Clinical DDI study</text></g>
+      </svg>
+      <p class="wfnote">Each tier can end the assessment. A result that clears a cut-off is recorded with its calculated value and the evaluation stops there; only an unresolved risk moves down. A mechanistic static model is optional — ICH M12 allows a move straight from the basic model to PBPK or to a clinical study.</p>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section>
+  <div class="shead"><span class="num">1</span><h2>Compound and physiological parameters</h2></div>
+  <p class="sdesc">Applies to every dose level. Physiological values are the ICH M12 defaults for a 70 kg adult;
+     the intestinal volume is fixed at 250 mL and normally stay as they are.</p>
+  <div class="body"><div class="tw"><table id="tConst"></table></div></div>
+  <p class="note">Set fu,p to 0.01 when a measured value below 1% cannot be shown to be reliable.
+     Two values of Fg and fm are kept because the probe substrate differs: CYP3A uses midazolam,
+     the remaining enzymes use a hypothetical sensitive substrate.</p>
+</section>
+
+<!-- 2 -->
+<section>
+  <div class="shead"><span class="num">2</span><h2>Dose level and exposure parameters</h2></div>
+  <p class="sdesc">Enter the dose and the steady-state Cmax for up to five dose levels. Everything below
+     is derived from these two rows.</p>
+  <div class="body"><div class="tw"><table id="tDose"></table></div></div>
+</section>
+
+<!-- 3 -->
+<section>
+  <div class="shead"><span class="num">3</span><h2>CYP reversible inhibition — basic model</h2></div>
+  <div class="crits"><span class="crit">Cmax,u / Ki,u ≥ 0.02<small>hepatic</small></span><span class="crit">(Dose / 250 mL) / Ki,u ≥ 10<small>intestinal CYP3A</small></span></div>
+  <p class="rule"><code>Ki = IC50 / 2</code> &nbsp;·&nbsp; <code>Ki,u = Ki × fu,mic</code></p>
+  <div class="body"><div class="tw"><table id="tR1"></table></div>
+    <div class="tw"><table id="tR1g"></table></div></div>
+  <p class="note">An IC50 entered as “&gt; 50” is treated as 50, which is the conservative reading.</p>
+</section>
+
+<!-- 4 -->
+<section>
+  <div class="shead"><span class="num">4</span><h2>CYP time-dependent inhibition — basic model</h2></div>
+  <div class="crits"><span class="crit">R2 = (kobs + kdeg) / kdeg ≥ 1.25</span></div>
+  <p class="rule"><code>kobs = kinact × 5 Cmax,u / (KI,u + 5 Cmax,u)</code></p>
+  <div class="body"><div class="tw"><table id="tR2"></table></div></div>
+  <p class="note">ICH M12 uses 5 × Cmax,u here; the superseded FDA 2020 guidance used 50 ×.
+     Each enzyme uses its own kdeg.</p>
+</section>
+
+<!-- 5 -->
+<section>
+  <div class="shead"><span class="num">5</span><h2>CYP inhibition — mechanistic static model</h2></div>
+  <div class="crits"><span class="crit">AUCR ≥ 1.25</span></div>
+  <p class="rule"><code>AUCR = 1 / [(Ah·Bh)·fm + (1 − fm)] × 1 / [(Ag·Bg)·(1 − Fg) + Fg]</code></p>
+  <div class="body"><div class="tw"><table id="tIg"></table></div>
+    <div class="tw"><table id="tMsm"></table></div></div>
+  <p class="note">CYP3A (midazolam) uses the CYP3A fm and Fg. CYP3A (testosterone) follows the workbook
+     and uses the other-CYP fm and Fg, so its intestinal factor is 1. For the remaining enzymes
+     Ag = Bg = 1 and Fg = 1.</p>
+</section>
+
+<!-- 6 -->
+<section>
+  <div class="shead"><span class="num">6</span><h2>CYP induction — basic model</h2></div>
+  <div class="crits"><span class="crit">R3 ≤ 0.8</span></div>
+  <p class="rule"><code>R3 = 1 / (1 + d · Emax · 10 Cmax,u / (EC50,u + 10 Cmax,u))</code> &nbsp;·&nbsp;
+     <code>RIS = Emax · Cmax,u / (EC50,u + Cmax,u)</code></p>
+  <div class="body"><div class="tw"><table id="tInd"></table></div>
+    <div class="tw"><table id="tR3"></table></div></div>
+  <p class="note">Enter Emax as the fitted maximum induction effect. If your model is
+     E = 1 + Emax·C/(EC50 + C), that is the fold change minus one — check the report before entering it.
+     RIS has no fixed cut-off; convert it through the calibration curve of the hepatocyte batch.</p>
+</section>
+
+<!-- 7 -->
+<section>
+  <div class="shead"><span class="num">7</span><h2>CYP induction — mechanistic static model</h2></div>
+  <div class="crits"><span class="crit">AUCR ≤ 0.8</span></div>
+  <p class="rule"><code>AUCR = 1 / [Ch·fm + (1 − fm)] × 1 / [Cg·(1 − Fg) + Fg]</code> &nbsp;·&nbsp;
+     <code>Ch = 1 + d·Emax·[I]h / ([I]h + EC50,u)</code> &nbsp;·&nbsp;
+     <code>Cg = 1 + d·Emax·[I]g / ([I]g + EC50,u)</code></p>
+  <div class="body"><div class="tw"><table id="tMsmInd"></table></div></div>
+</section>
+
+<!-- 8 -->
+<section>
+  <div class="shead"><span class="num">8</span><h2>Transporter inhibition — basic model</h2></div>
+  <div class="crits"><span class="crit">R ≥ 10<small>P-gp, BCRP (intestinal)</small></span><span class="crit">R ≥ 0.1<small>OATP1B1, OATP1B3</small></span><span class="crit">R ≥ 0.1<small>OAT1, OAT3, OCT2</small></span><span class="crit">R ≥ 0.02<small>MATE1, MATE2-K</small></span></div>
+  <p class="rule"><code>R = (Dose / 250 mL) / IC50,u</code> intestinal &nbsp;·&nbsp;
+     <code>R = [I]h / IC50,u</code> OATP &nbsp;·&nbsp; <code>R = Cmax,u / IC50,u</code> renal</p>
+  <div class="body"><div class="tw"><table id="tTr"></table></div></div>
+  <p class="note">IC50,u defaults to the measured IC50. Overwrite it with IC50 × fu,inc where
+     non-specific binding was determined. Intestinal criteria apply to oral dosing only.</p>
+</section>
+
+<!-- 9 -->
+<section>
+  <div class="shead"><span class="num">9</span><h2>Overall assessment</h2></div>
+  <p class="sdesc">Every enzyme and transporter that exceeds its cut-off at one or more dose levels, grouped by mechanism and by the model that flagged it, with the next step for each group.</p>
+  <div class="body"><div class="tw"><table id="tOv"></table></div></div>
+</section>
+
+<div class="legend">
+  <span><i class="i1"></i>Measured value — your input</span>
+  <span><i class="i2"></i>Fixed value</span>
+  <span><i class="i3"></i>Calculated</span>
+  <span><i class="i4"></i>Cut-off exceeded</span>
+</div>
+
+<div class="acts">
+  <button id="bCsv">Download CSV</button>
+  <button id="bPrint">Print / PDF</button>
+  <button id="bReset">Restore example values</button>
+  <button id="bClear">Clear all inputs</button>
+</div>
+
+</main>
+
+<footer class="wrap">
+  <p>ICH M12 Drug Interaction Studies (Step 4, 21 May 2024) was issued by FDA on 2 August 2024, superseding the January 2020 in vitro and clinical DDI guidances; basic and mechanistic static models are screening tools, so a result above a cut-off calls for further evaluation rather than a conclusion.</p>
+</footer>
+
+<script>
+"use strict";
+
+/* ───────────────────────── model definitions ───────────────────────── */
+const ND = 5;
+
+const CONST = [
+  {k:"compound", lab:"Compound",                            v:"12345", unit:"",        text:true},
+  {k:"mw",   lab:"Molecular weight (MW)",                   v:579.09,  unit:"g/mole"},
+  {k:"fup",  lab:"Plasma protein binding (fu,p)",           v:0.0315,  unit:"Fraction"},
+  {k:"fumic",lab:"Microsomal binding (fu,mic)",             v:0.153,   unit:"Fraction"},
+  {k:"rb",   lab:"Blood-to-plasma ratio (RB)",              v:1,       unit:"Ratio"},
+  {k:"qh",   lab:"Hepatic blood flow (Qh)",                 v:97,      unit:"L/h",  fixed:true},
+  {k:"qen",  lab:"Enterocyte blood flow (Qen)",             v:18,      unit:"L/h",  fixed:true},
+  {k:"fa",   lab:"Fraction absorbed (Fa)",                  v:1,       unit:"Fraction"},
+  {k:"fg",   lab:"Intestinal availability (Fg) — other CYP",v:1,       unit:"Fraction"},
+  {k:"fg3a", lab:"Intestinal availability (Fg) — CYP3A",    v:0.57,    unit:"Fraction"},
+  {k:"ka",   lab:"Absorption rate constant (ka)",           v:6,       unit:"/h"},
+  {k:"fm",   lab:"Fraction metabolised (fm) — other CYP",   v:0.99,    unit:"Fraction"},
+  {k:"fm3a", lab:"Fraction metabolised (fm) — CYP3A",       v:0.93,    unit:"Fraction"},
+  {k:"d",    lab:"Scaling factor (d)",                      v:1,       unit:"-"}
+];
+
+const CYPS = [
+  {id:"1a2",  name:"CYP1A2",               ic50:"> 50", kdeg:0.0003,  kinact:"", ki:""},
+  {id:"2b6",  name:"CYP2B6",               ic50:"> 50", kdeg:0.00036, kinact:"", ki:""},
+  {id:"2c8",  name:"CYP2C8",               ic50:"> 50", kdeg:0.00053, kinact:"", ki:""},
+  {id:"2c9",  name:"CYP2C9",               ic50:"> 50", kdeg:0.00011, kinact:"", ki:""},
+  {id:"2c19", name:"CYP2C19",              ic50:"31.4", kdeg:0.00044, kinact:"", ki:""},
+  {id:"2d6",  name:"CYP2D6",               ic50:"> 50", kdeg:0.00023, kinact:"", ki:""},
+  {id:"3am",  name:"CYP3A (midazolam)",    ic50:"5.85", kdeg:0.00032, kinact:0.0287, ki:0.332, is3a:true},
+  {id:"3at",  name:"CYP3A (testosterone)", ic50:"13",   kdeg:0.00032, kinact:0.0265, ki:1.4,   is3a:true}
+];
+const KDEG_GUT = 0.00048;
+
+const IND_ENZ = ["CYP1A2","CYP2B6","CYP2C8","CYP2C9","CYP2C19","CYP3A4"];
+const IND_SEED = {"CYP3A4":[[21.7885,0.3775],[26.1065,0.1577],[10.2756,0.6984]]};
+
+const TRANS = [
+  {id:"pgp",  name:"P-gp",    basis:"gut",  cut:10,   ic50:6.23},
+  {id:"bcrp", name:"BCRP",    basis:"gut",  cut:10,   ic50:32.6},
+  {id:"o1b1", name:"OATP1B1", basis:"inlet",cut:0.1,  ic50:32.4},
+  {id:"o1b3", name:"OATP1B3", basis:"inlet",cut:0.1,  ic50:12.3},
+  {id:"oat1", name:"OAT1",    basis:"cmaxu",cut:0.1,  ic50:77},
+  {id:"oat3", name:"OAT3",    basis:"cmaxu",cut:0.1,  ic50:100},
+  {id:"oct2", name:"OCT2",    basis:"cmaxu",cut:0.1,  ic50:3.79},
+  {id:"mate1",name:"MATE1",   basis:"cmaxu",cut:0.02, ic50:25.8},
+  {id:"mate2",name:"MATE2-K", basis:"cmaxu",cut:0.02, ic50:0.307}
+];
+
+const DOSE_SEED = [70, 95, 125, 165, 220];
+const CMAX_SEED = [293, 548, 607, 1172, 1823];
+
+/* ───────────────────────── state ───────────────────────── */
+let S;
+function seed(empty){
+  S = {c:{}, dose:[], cmax:[], cyp:{}, ind:{}, tr:{}};
+  CONST.forEach(p => S.c[p.k] = empty && !p.fixed ? "" : p.v);
+  for (let i=0;i<ND;i++){ S.dose[i] = empty?"":DOSE_SEED[i]; S.cmax[i] = empty?"":CMAX_SEED[i]; }
+  CYPS.forEach(e => S.cyp[e.id] = {
+    ic50: empty?"":e.ic50, kinact: empty?"":e.kinact, ki: empty?"":e.ki, kdeg: e.kdeg });
+  IND_ENZ.forEach(en => [1,2,3].forEach(dn => {
+    const sd = (!empty && IND_SEED[en]) ? IND_SEED[en][dn-1] : ["",""];
+    S.ind[en+"|"+dn] = {emax: sd[0], ec50: sd[1]};
+  }));
+  TRANS.forEach(t => S.tr[t.id] = {ic50: empty?"":t.ic50, ic50u:""});
+}
+seed(false);
+
+/* ───────────────────────── helpers ───────────────────────── */
+const N = v => { if (v===""||v===null||v===undefined) return null;
+  const x = parseFloat(String(v).replace(/[><≥≤\s]/g,"")); return Number.isFinite(x)?x:null; };
+const fmt = (v,d=3) => (v===null||!Number.isFinite(v)) ? "—"
+  : (Math.abs(v)>=1e5 || (Math.abs(v)<1e-4 && v!==0)) ? v.toExponential(2) : v.toFixed(d);
+const el = (t,p={},k=[]) => { const n=document.createElement(t);
+  for (const [a,v] of Object.entries(p)){
+    if (a==="class") n.className=v; else if (a==="html") n.innerHTML=v;
+    else if (a==="text") n.textContent=v; else n.setAttribute(a,v); }
+  k.forEach(c=>n.appendChild(c)); return n; };
+
+function td(v,{cls="",flag=false,d=3}={}){
+  const c = el("td");
+  const num = typeof v === "number" || v === null;
+  c.textContent = num ? fmt(v,d) : v;
+  c.className = "calc" + (cls?" "+cls:"") + ((v===null||v==="—")?" na":"") + (flag?" flag":"");
+  return c;
+}
+function inputCell(get,set,{wide=false,ph=""}={}){
+  const c = el("td");
+  const i = el("input",{type:wide?"text":"number",step:"any",value:get()??"",placeholder:ph});
+  if (wide) i.className="wide";
+  i.addEventListener("input",()=>{ set(i.value); recompute(); });
+  c.appendChild(i); return c;
+}
+function head(tbl, labels){
+  const tr = el("tr");
+  labels.forEach(l => tr.appendChild(el("th",{html:l})));
+  tbl.appendChild(el("thead",{},[tr]));
+}
+const doseCols = suf => Array.from({length:ND},(_,i)=>`Dose ${i+1}${suf?'<br><span class="unit">'+suf+'</span>':''}`);
+
+/* ───────────────────────── derived exposure ───────────────────────── */
+function derived(){
+  const c = S.c, mw = N(c.mw), fup = N(c.fup), fa = N(c.fa), fg = N(c.fg),
+        qh = N(c.qh), qen = N(c.qen), rb = N(c.rb);
+  const KA = N(c.ka);
+  const out = [];
+  for (let i=0;i<ND;i++){
+    const dose = N(S.dose[i]), cmax = N(S.cmax[i]);
+    const umol   = (dose!==null && mw) ? dose*1000/mw : null;
+    const gutuM  = (umol!==null) ? umol/0.25 : null;   // Vgut fixed at 250 mL
+    const cmaxuM = (cmax!==null && mw) ? cmax/mw : null;
+    const cmaxu  = (cmaxuM!==null && fup!==null) ? cmaxuM*fup : null;
+    const ih = (cmaxuM!==null && umol!==null && qh && rb && fa!==null && fg!==null && fup!==null && KA!==null)
+      ? fup*(cmaxuM + (fa*fg*KA*umol)/qh/rb) : null;
+    const ig = (umol!==null && qen && fa!==null && KA!==null) ? fa*KA*umol/qen : null;
+    out.push({dose, cmax, umol, gutuM, cmaxuM, cmaxu, ih, ig});
+  }
+  return out;
+}
+
+/* ───────────────────────── calculations ───────────────────────── */
+const kiu = e => { const k = N(S.cyp[e.id].ic50); const f = N(S.c.fumic);
+  return (k===null||f===null) ? null : (k/2)*f; };
+
+function calcR1(D){ return CYPS.map(e => {
+  const K = kiu(e);
+  return {e, kiu:K, vals: D.map(d => (K && d.cmaxu!==null) ? d.cmaxu/K : null)};
+});}
+function calcR1gut(D){ return CYPS.filter(e=>e.is3a).map(e => {
+  const K = kiu(e);
+  return {e, kiu:K, vals: D.map(d => (K && d.gutuM!==null) ? d.gutuM/K : null)};
+});}
+function calcR2(D){ return CYPS.map(e => {
+  const st = S.cyp[e.id], kin = N(st.kinact), KI = N(st.ki), kd = N(st.kdeg);
+  const kobs = D.map(d => (kin!==null && KI!==null && d.cmaxu!==null)
+    ? kin*5*d.cmaxu/(KI + 5*d.cmaxu) : null);
+  return {e, kobs, kdeg:kd,
+    vals: kobs.map(k => (k!==null && kd) ? (k+kd)/kd : null)};
+});}
+
+function abTerm(e, I, gut){
+  const st = S.cyp[e.id], K = kiu(e), kin = N(st.kinact), KI = N(st.ki),
+        kd = gut ? KDEG_GUT : N(st.kdeg);
+  if (I === null) return {A:null,B:null};
+  const A = K ? 1/(1+I/K) : 1;
+  const B = (kin!==null && KI!==null && kd) ? kd/(kd + I*kin/(I+KI)) : 1;
+  return {A,B};
+}
+function calcMsm(D){ return CYPS.map(e => {
+  // Workbook convention: only the midazolam row uses the CYP3A fm/Fg; testosterone uses the other-CYP values
+  const own3a = e.id === "3am";
+  const fm = N(own3a ? S.c.fm3a : S.c.fm), fg = N(own3a ? S.c.fg3a : S.c.fg);
+  const rows = D.map(d => {
+    const h = abTerm(e, d.ih, false);
+    const g = e.is3a ? abTerm(e, d.ig, true) : {A:1,B:1};
+    if (h.A === null || fm === null || fg === null) return {h,g,aucr:null};
+    const hep = 1/((h.A*h.B)*fm + (1-fm));
+    const gut = 1/((g.A*g.B)*(1-fg) + fg);
+    return {h,g,aucr: hep*gut};
+  });
+  return {e, fm, fg, rows};
+});}
+
+function indRows(){ const out=[];
+  IND_ENZ.forEach(en => [1,2,3].forEach(dn => out.push({en, dn, key:en+"|"+dn})));
+  return out; }
+function calcR3(D){ const d0 = N(S.c.d);
+  return indRows().map(r => {
+    const st = S.ind[r.key], em = N(st.emax), ec = N(st.ec50);
+    const ok = em!==null && ec!==null && d0!==null;
+    return {...r, em, ec,
+      r3:  D.map(d => (ok && d.cmaxu!==null) ? 1/(1 + d0*(em*10*d.cmaxu/(ec + 10*d.cmaxu))) : null),
+      ris: D.map(d => (ok && d.cmaxu!==null) ? em*d.cmaxu/(ec + d.cmaxu) : null)};
+  });
+}
+function calcMsmInd(D){ const d0 = N(S.c.d);
+  return calcR3(D).map(r => {
+    const is3a = r.en === "CYP3A4";
+    const fm = N(is3a ? S.c.fm3a : S.c.fm), fg = N(is3a ? S.c.fg3a : S.c.fg);
+    const ok = r.em!==null && r.ec!==null && d0!==null && fm!==null && fg!==null;
+    const rows = D.map(d => {
+      if (!ok || d.ih===null) return {ch:null,cg:null,aucr:null};
+      const ch = 1 + d0*r.em*d.ih/(d.ih + r.ec);
+      const cg = d.ig!==null ? 1 + d0*r.em*d.ig/(d.ig + r.ec) : 1;
+      return {ch, cg, aucr: (1/(ch*fm + (1-fm))) * (1/(cg*(1-fg) + fg))};
+    });
+    return {...r, rows};
+  });
+}
+function calcTrans(D){ return TRANS.map(t => {
+  const st = S.tr[t.id];
+  const ic = N(st.ic50u) !== null ? N(st.ic50u) : N(st.ic50);
+  const pick = d => t.basis==="gut" ? d.gutuM : t.basis==="inlet" ? d.ih : d.cmaxu;
+  return {t, ic, vals: D.map(d => { const I = pick(d);
+    return (ic && I!==null) ? I/ic : null; })};
+});}
+
+/* ───────────────────────── build once, then update ───────────────────────── */
+const R = {};
+
+function setCell(c,v,{flag=false,d=3}={}){
+  c.textContent = fmt(v,d);
+  c.className = "calc" + (v===null?" na":"") + (flag?" flag":"");
+}
+function slot(tr,n){ const out=[]; for(let i=0;i<n;i++){ const c=el("td",{class:"calc na",text:"—"});
+  tr.appendChild(c); out.push(c); } return out; }
+
+function buildConst(){
+  const t=document.getElementById("tConst"); t.innerHTML=""; head(t,["Parameter","Value","Unit"]);
+  const tb=el("tbody");
+  CONST.forEach(p=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:p.lab}));
+    if(p.fixed) tr.appendChild(td(String(p.v),{cls:"fixed"}));
+    else tr.appendChild(inputCell(()=>S.c[p.k], v=>S.c[p.k]=v, {wide:!!p.text}));
+    tr.appendChild(el("td",{class:"unit",text:p.unit})); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function buildDose(){
+  const t=document.getElementById("tDose"); t.innerHTML="";
+  head(t,["Parameter",...doseCols(""),"Unit"]);
+  const tb=el("tbody"); R.dose=[];
+  const rowIn=(lab,arr,unit)=>{ const tr=el("tr"); tr.appendChild(el("td",{text:lab}));
+    for(let i=0;i<ND;i++) tr.appendChild(inputCell(()=>arr[i], v=>arr[i]=v));
+    tr.appendChild(el("td",{class:"unit",text:unit})); tb.appendChild(tr); };
+  rowIn("Dose",S.dose,"mg"); rowIn("Total Cmax,ss",S.cmax,"ng/mL");
+  [["Dose","µmol"],["Dose / 250 mL","µM"],["Total Cmax,ss","µM"],["Cmax,u","µM"],
+   ["[I]h (hepatic inlet, unbound)","µM"],["[I]g (gut)","µM"]].forEach(([lab,unit])=>{
+    const tr=el("tr",{class:"sub"}); tr.appendChild(el("td",{text:lab}));
+    R.dose.push(slot(tr,ND));
+    tr.appendChild(el("td",{class:"unit",text:unit})); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function buildR1(){
+  const t=document.getElementById("tR1"); t.innerHTML="";
+  head(t,["Enzyme",'IC50 <span class="unit">µM</span>','Ki <span class="unit">µM</span>',
+          'Ki,u <span class="unit">µM</span>',...doseCols("Cmax,u / Ki,u")]);
+  const tb=el("tbody"); R.r1=[];
+  CYPS.forEach(e=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:e.name}));
+    tr.appendChild(inputCell(()=>S.cyp[e.id].ic50, v=>S.cyp[e.id].ic50=v,{wide:true,ph:"> 50"}));
+    const ki=slot(tr,1)[0], kiu=slot(tr,1)[0];
+    R.r1.push({ki,kiu,vals:slot(tr,ND)}); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+
+  const g=document.getElementById("tR1g"); g.innerHTML="";
+  head(g,["Intestinal CYP3A",'Ki,u <span class="unit">µM</span>',...doseCols("(Dose / 250 mL) / Ki,u")]);
+  const gb=el("tbody"); R.r1g=[];
+  CYPS.filter(e=>e.is3a).forEach(e=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:e.name}));
+    const kiu=slot(tr,1)[0];
+    R.r1g.push({kiu,vals:slot(tr,ND)}); gb.appendChild(tr);
+  });
+  g.appendChild(gb);
+}
+
+function buildR2(){
+  const t=document.getElementById("tR2"); t.innerHTML="";
+  head(t,["Enzyme",'kinact <span class="unit">/min</span>','KI,u <span class="unit">µM</span>',
+          'kdeg <span class="unit">/min</span>',...doseCols("R2")]);
+  const tb=el("tbody"); R.r2=[];
+  CYPS.forEach(e=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:e.name}));
+    tr.appendChild(inputCell(()=>S.cyp[e.id].kinact, v=>S.cyp[e.id].kinact=v));
+    tr.appendChild(inputCell(()=>S.cyp[e.id].ki,     v=>S.cyp[e.id].ki=v));
+    tr.appendChild(inputCell(()=>S.cyp[e.id].kdeg,   v=>S.cyp[e.id].kdeg=v));
+    R.r2.push(slot(tr,ND)); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function buildMsm(){
+  const ig=document.getElementById("tIg"); ig.innerHTML="";
+  head(ig,["Enzyme","Term",...doseCols("")]);
+  const ib=el("tbody"); R.ab=[];
+  CYPS.forEach(e=>{
+    const rec={A:null,B:null,Ag:null,Bg:null};
+    [["Ah","A"],["Bh","B"]].forEach(([lab,key],idx)=>{
+      const tr=el("tr", idx?{class:"sub"}:{});
+      tr.appendChild(el("td",{text: idx?"":e.name}));
+      tr.appendChild(el("td",{class:"unit",text:lab}));
+      rec[key]=slot(tr,ND); ib.appendChild(tr);
+    });
+    if(e.is3a) [["Ag","Ag"],["Bg","Bg"]].forEach(([lab,key])=>{
+      const tr=el("tr",{class:"sub"});
+      tr.appendChild(el("td",{text:""}));
+      tr.appendChild(el("td",{class:"unit",text:lab}));
+      rec[key]=slot(tr,ND); ib.appendChild(tr);
+    });
+    R.ab.push(rec);
+  });
+  ig.appendChild(ib);
+
+  const t=document.getElementById("tMsm"); t.innerHTML="";
+  head(t,["Enzyme","fm","Fg",...doseCols("AUCR")]);
+  const tb=el("tbody"); R.msm=[];
+  CYPS.forEach(e=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:e.name}));
+    const fm=slot(tr,1)[0], fg=slot(tr,1)[0];
+    R.msm.push({fm,fg,vals:slot(tr,ND)}); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function buildInduction(){
+  const t=document.getElementById("tInd"); t.innerHTML="";
+  head(t,["Enzyme","Donor",'Emax <span class="unit">—</span>','EC50,u <span class="unit">µM</span>']);
+  const tb=el("tbody");
+  indRows().forEach(r=>{
+    const tr=el("tr");
+    tr.appendChild(el("td",{text: r.dn===1 ? r.en : ""}));
+    tr.appendChild(el("td",{class:"unit",text:"Donor "+r.dn}));
+    tr.appendChild(inputCell(()=>S.ind[r.key].emax, v=>S.ind[r.key].emax=v));
+    tr.appendChild(inputCell(()=>S.ind[r.key].ec50, v=>S.ind[r.key].ec50=v));
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+
+  const r3=document.getElementById("tR3"); r3.innerHTML="";
+  head(r3,["Enzyme","Donor",...doseCols("R3"),...doseCols("RIS")]);
+  const rb=el("tbody"); R.r3=[];
+  indRows().forEach(r=>{
+    const tr=el("tr");
+    tr.appendChild(el("td",{text: r.dn===1 ? r.en : ""}));
+    tr.appendChild(el("td",{class:"unit",text:"Donor "+r.dn}));
+    R.r3.push({r3:slot(tr,ND), ris:slot(tr,ND)}); rb.appendChild(tr);
+  });
+  r3.appendChild(rb);
+
+  const m=document.getElementById("tMsmInd"); m.innerHTML="";
+  head(m,["Enzyme","Donor",...doseCols("Ch"),...doseCols("Cg"),...doseCols("AUCR")]);
+  const mb=el("tbody"); R.msmInd=[];
+  indRows().forEach(r=>{
+    const tr=el("tr");
+    tr.appendChild(el("td",{text: r.dn===1 ? r.en : ""}));
+    tr.appendChild(el("td",{class:"unit",text:"Donor "+r.dn}));
+    R.msmInd.push({ch:slot(tr,ND), cg:slot(tr,ND), aucr:slot(tr,ND)}); mb.appendChild(tr);
+  });
+  m.appendChild(mb);
+}
+
+function buildTrans(){
+  const t=document.getElementById("tTr"); t.innerHTML="";
+  head(t,["Transporter",'IC50 <span class="unit">µM</span>','IC50,u <span class="unit">µM</span>',
+          "Cut-off",...doseCols("R")]);
+  const tb=el("tbody"); R.tr=[];
+  TRANS.forEach(x=>{
+    const tr=el("tr"); tr.appendChild(el("td",{text:x.name}));
+    tr.appendChild(inputCell(()=>S.tr[x.id].ic50,  v=>S.tr[x.id].ic50=v));
+    tr.appendChild(inputCell(()=>S.tr[x.id].ic50u, v=>S.tr[x.id].ic50u=v,{ph:"= IC50"}));
+    tr.appendChild(el("td",{class:"unit",text:"≥ "+x.cut}));
+    R.tr.push(slot(tr,ND)); tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+/* ───────────────────────── overall ───────────────────────── */
+function overall(D){
+  const rows=[];
+  const G=(mech,model,crit,action)=>({mech,model,crit,action,key:mech+"|"+model});
+  const push=(g,item,hits,icrit)=>{ if(hits.some(Boolean)) rows.push({...g,item,hits,icrit:icrit||""}); };
+
+  const gR1  = G("CYP reversible inhibition","Basic (R1)","Cmax,u / Ki,u ≥ 0.02",
+                 "Clinical DDI study with a sensitive substrate of the enzyme");
+  const gR1g = G("CYP reversible inhibition","Basic (R1,gut) — intestinal CYP3A","(Dose / 250 mL) / Ki,u ≥ 10",
+                 "Clinical DDI study with an oral CYP3A substrate such as midazolam");
+  const gR2  = G("CYP time-dependent inhibition","Basic (R2)","R2 ≥ 1.25",
+                 "Clinical DDI study under repeat dosing");
+  const gMi  = G("CYP inhibition (reversible + TDI)","Mechanistic static (AUCR)","AUCR ≥ 1.25",
+                 "PBPK or clinical DDI study");
+  const gR3  = G("CYP induction","Basic kinetic (R3) — any donor","R3 ≤ 0.8",
+                 "Clinical induction study, or PBPK with the calibrated hepatocyte batch");
+  const gMd  = G("CYP induction","Mechanistic static (AUCR) — any donor","AUCR ≤ 0.8",
+                 "PBPK or clinical induction study");
+  const gTr  = G("Transporter inhibition","Basic (R)","",
+                 "Clinical DDI study with a probe substrate of the transporter");
+
+  calcR1(D).forEach(r=>push(gR1, r.e.name, r.vals.map(v=>v!==null&&v>=0.02)));
+  calcR1gut(D).forEach(r=>push(gR1g, r.e.name, r.vals.map(v=>v!==null&&v>=10)));
+  calcR2(D).forEach(r=>push(gR2, r.e.name, r.vals.map(v=>v!==null&&v>=1.25)));
+  calcMsm(D).forEach(r=>push(gMi, r.e.name, r.rows.map(x=>x.aucr!==null&&x.aucr>=1.25)));
+  const agg=(list,pick,test)=>{ const o={};
+    list.forEach(r=>{ const a=o[r.en]||(o[r.en]=D.map(()=>false));
+      pick(r).forEach((v,i)=>{ if(test(v)) a[i]=true; }); }); return o; };
+  Object.entries(agg(calcR3(D), r=>r.r3, v=>v!==null&&v<=0.8))
+    .forEach(([en,h])=>push(gR3, en, h));
+  Object.entries(agg(calcMsmInd(D), r=>r.rows.map(x=>x.aucr), v=>v!==null&&v<=0.8))
+    .forEach(([en,h])=>push(gMd, en, h));
+  calcTrans(D).forEach(r=>push(gTr, r.t.name, r.vals.map(v=>v!==null&&v>=r.t.cut), "R ≥ "+r.t.cut));
+  return rows;
+}
+
+/* ───────────────────────── update ───────────────────────── */
+function update(){
+  const D = derived();
+  const picks=[x=>x.umol,x=>x.gutuM,x=>x.cmaxuM,x=>x.cmaxu,x=>x.ih,x=>x.ig];
+  const dec=[1,1,4,4,4,2];
+  picks.forEach((p,k)=>D.forEach((x,i)=>setCell(R.dose[k][i],p(x),{d:dec[k]})));
+
+  calcR1(D).forEach((r,i)=>{
+    const k=N(S.cyp[r.e.id].ic50);
+    setCell(R.r1[i].ki, k===null?null:k/2,{d:2});
+    setCell(R.r1[i].kiu, r.kiu,{d:3});
+    r.vals.forEach((v,j)=>setCell(R.r1[i].vals[j],v,{flag:v!==null&&v>=0.02,d:4}));
+  });
+  calcR1gut(D).forEach((r,i)=>{
+    setCell(R.r1g[i].kiu,r.kiu,{d:3});
+    r.vals.forEach((v,j)=>setCell(R.r1g[i].vals[j],v,{flag:v!==null&&v>=10,d:1}));
+  });
+  calcR2(D).forEach((r,i)=>r.vals.forEach((v,j)=>
+    setCell(R.r2[i][j],v,{flag:v!==null&&v>=1.25,d:2})));
+
+  calcMsm(D).forEach((r,i)=>{
+    const rec=R.ab[i];
+    r.rows.forEach((x,j)=>{
+      setCell(rec.A[j],x.h.A,{d:4}); setCell(rec.B[j],x.h.B,{d:4});
+      if(rec.Ag){ setCell(rec.Ag[j],x.g.A,{d:4}); setCell(rec.Bg[j],x.g.B,{d:4}); }
+    });
+    setCell(R.msm[i].fm,r.fm,{d:2}); setCell(R.msm[i].fg,r.fg,{d:2});
+    r.rows.forEach((x,j)=>setCell(R.msm[i].vals[j],x.aucr,{flag:x.aucr!==null&&x.aucr>=1.25,d:2}));
+  });
+
+  calcR3(D).forEach((r,i)=>{
+    r.r3.forEach((v,j)=>setCell(R.r3[i].r3[j],v,{flag:v!==null&&v<=0.8,d:3}));
+    r.ris.forEach((v,j)=>setCell(R.r3[i].ris[j],v,{d:2}));
+  });
+  calcMsmInd(D).forEach((r,i)=>r.rows.forEach((x,j)=>{
+    setCell(R.msmInd[i].ch[j],x.ch,{d:2});
+    setCell(R.msmInd[i].cg[j],x.cg,{d:2});
+    setCell(R.msmInd[i].aucr[j],x.aucr,{flag:x.aucr!==null&&x.aucr<=0.8,d:3});
+  }));
+  calcTrans(D).forEach((r,i)=>r.vals.forEach((v,j)=>
+    setCell(R.tr[i][j],v,{flag:v!==null&&v>=r.t.cut,d:3})));
+
+  renderOverall(D); renderBand(D);
+}
+const recompute = update;
+
+function renderOverall(D){
+  const t=document.getElementById("tOv"); t.innerHTML="";
+  head(t,["Enzyme / transporter",
+          ...D.map((d,i)=>`${d.dose!==null?d.dose:"Dose "+(i+1)}<br><span class="unit">mg</span>`)]);
+  const tb=el("tbody"); const rows=overall(D); const span=String(1+ND);
+  if(!rows.length){
+    const tr=el("tr");
+    tr.appendChild(el("td",{colspan:span,class:"na",text:"No cut-off is exceeded at any dose level entered."}));
+    tb.appendChild(tr); t.appendChild(tb); return;
+  }
+  let prevKey="", prevMech="";
+  rows.forEach(r=>{
+    if(r.key!==prevKey){
+      const g=el("tr",{class:"grp"}); const c=el("td",{colspan:span});
+      if(r.mech!==prevMech) c.appendChild(el("div",{class:"mech",text:r.mech}));
+      const line=el("div",{class:"gline"});
+      line.appendChild(el("span",{class:"model",text:r.model}));
+      if(r.crit) line.appendChild(el("span",{class:"crit sm",text:r.crit}));
+      line.appendChild(el("span",{class:"act",text:r.action}));
+      c.appendChild(line); g.appendChild(c); tb.appendChild(g);
+      prevKey=r.key; prevMech=r.mech;
+    }
+    const tr=el("tr");
+    const n=el("td",{class:"item"}); n.appendChild(document.createTextNode(r.item));
+    if(r.icrit) n.appendChild(el("span",{class:"crit sm",text:r.icrit}));
+    tr.appendChild(n);
+    r.hits.forEach(h=>{ const c=el("td",{text:h?"Potential":""}); c.className=h?"flag":"na"; tr.appendChild(c); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function renderBand(D){
+  const b=document.getElementById("band"); b.innerHTML="";
+  const rows=overall(D);
+  b.appendChild(el("div",{class:"bandlab"},[
+    el("b",{text:"Items exceeding a cut-off"}), el("span",{text:"across all models"})]));
+  D.forEach((d,i)=>{
+    const n=rows.filter(r=>r.hits[i]).length;
+    const has=d.dose!==null&&d.cmax!==null;
+    const box=el("div",{class:"dose","data-hit": has?(n>0?"1":"0"):"-"});
+    box.appendChild(el("div",{class:"d",text: has ? d.dose+" mg" : "Dose "+(i+1)}));
+    box.appendChild(el("div",{class:"n",text: has ? String(n) : "—"}));
+    box.appendChild(el("div",{class:"s",
+      text: has ? (n>0?"further evaluation":"risk excluded") : "not entered"}));
+    b.appendChild(box);
+  });
+}
+
+function buildAll(){
+  buildConst(); buildDose(); buildR1(); buildR2(); buildMsm();
+  buildInduction(); buildTrans(); update();
+}
+buildAll();
+
+/* ───────────────────────── actions ───────────────────────── */
+const PDFS = {
+  bIch:{url:"https://database.ich.org/sites/default/files/ICH_M12_Step4_Guideline_2024_0521_0.pdf",
+        name:"ICH_M12"},
+  bFda:{url:"https://www.fda.gov/media/161199/download", name:"FDA_M12"},
+  bQa: {url:"https://www.fda.gov/media/180488/download", name:"FDA_M12_QA"}
+};
+const hint = document.getElementById("popHint");
+Object.entries(PDFS).forEach(([id,{url,name}])=>{
+  document.getElementById(id).addEventListener("click",()=>{
+    const w = window.open(url, name, "width=1040,height=900,scrollbars=yes,resizable=yes");
+    if(!w || w.closed){
+      hint.textContent = "Pop-up blocked — allow pop-ups for this page, or open the link in a new tab.";
+      window.open(url,"_blank","noopener");
+    } else { hint.textContent = ""; w.focus(); }
+  });
+});
+
+const wfModal = document.getElementById("wfModal");
+const openWf = () => { wfModal.hidden = false; document.getElementById("wfClose").focus(); };
+const closeWf = () => { wfModal.hidden = true; document.getElementById("bWorkflow").focus(); };
+document.getElementById("bWorkflow").addEventListener("click",openWf);
+document.getElementById("wfClose").addEventListener("click",closeWf);
+wfModal.addEventListener("click",e=>{ if(e.target===wfModal) closeWf(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !wfModal.hidden) closeWf(); });
+
+document.getElementById("bPrint").addEventListener("click",()=>window.print());
+document.getElementById("bReset").addEventListener("click",()=>{ seed(false); buildAll(); });
+document.getElementById("bClear").addEventListener("click",()=>{ seed(true); buildAll(); });
+document.getElementById("bCsv").addEventListener("click",()=>{
+  const D = derived(), L = [], q = v => '"'+String(v??"").replace(/"/g,'""')+'"';
+  const doses = D.map((d,i)=> d.dose!==null ? d.dose+" mg" : "Dose "+(i+1));
+  L.push(["In vitro DDI risk assessment — ICH M12"]);
+  L.push(["Compound", S.c.compound, "Date", new Date().toISOString().slice(0,10)]);
+  L.push([]);
+  L.push(["Compound and physiological parameters"]);
+  CONST.forEach(p => L.push([p.lab, S.c[p.k], p.unit]));
+  L.push([]);
+  L.push(["Exposure", ...doses]);
+  [["Dose (mg)",x=>x.dose],["Cmax (ng/mL)",x=>x.cmax],["Dose (µmol)",x=>x.umol],
+   ["Dose/250 mL (µM)",x=>x.gutuM],["Cmax (µM)",x=>x.cmaxuM],["Cmax,u (µM)",x=>x.cmaxu],
+   ["[I]h (µM)",x=>x.ih],["[I]g (µM)",x=>x.ig]]
+   .forEach(([lab,p]) => L.push([lab, ...D.map(x=>fmt(p(x),4))]));
+  const block = (title, rows) => { L.push([]); L.push([title, ...doses]); rows.forEach(r=>L.push(r)); };
+  block("Reversible inhibition — Cmax,u/Ki,u",
+    calcR1(D).map(r => [r.e.name, ...r.vals.map(v=>fmt(v,4))]));
+  block("Reversible inhibition — intestinal",
+    calcR1gut(D).map(r => [r.e.name, ...r.vals.map(v=>fmt(v,1))]));
+  block("Time-dependent inhibition — R2",
+    calcR2(D).map(r => [r.e.name, ...r.vals.map(v=>fmt(v,2))]));
+  block("Inhibition — mechanistic static AUCR",
+    calcMsm(D).map(r => [r.e.name, ...r.rows.map(x=>fmt(x.aucr,2))]));
+  block("Induction — R3",
+    calcR3(D).map(r => [r.en+" Donor "+r.dn, ...r.r3.map(v=>fmt(v,3))]));
+  block("Induction — mechanistic static AUCR",
+    calcMsmInd(D).map(r => [r.en+" Donor "+r.dn, ...r.rows.map(x=>fmt(x.aucr,3))]));
+  block("Transporter inhibition — R",
+    calcTrans(D).map(r => [r.t.name, ...r.vals.map(v=>fmt(v,3))]));
+  L.push([]); L.push(["Mechanism","Model","Criterion","Enzyme / transporter", ...doses, "Strategy"]);
+  overall(D).forEach(r => L.push([r.mech, r.model, r.crit||r.icrit, r.item,
+    ...r.hits.map(h=>h?"Potential":""), r.action]));
+  const blob = new Blob(["\uFEFF"+L.map(r=>r.map(q).join(",")).join("\r\n")],
+    {type:"text/csv;charset=utf-8"});
+  const a = el("a",{href:URL.createObjectURL(blob),
+    download:(S.c.compound||"DDI")+"_DDI_assessment.csv"});
+  document.body.appendChild(a); a.click(); a.remove();
+});
+</script>
+</body>
+</html>
