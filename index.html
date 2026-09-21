@@ -141,7 +141,7 @@ input[type=number]{-moz-appearance:textfield}
 .legend .i4{background:var(--flag-bg);border-color:var(--flag-bd)}
 
 .note{margin:0 0 6px 38px;color:var(--muted);font-size:12.5px}
-.acts{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 40px 38px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:22px 0 40px 38px}
 button{font:inherit;font-size:13px;padding:6px 14px;background:#fff;color:var(--graphite);
   border:1px solid var(--rule-2);border-radius:2px;cursor:pointer}
 button:hover{background:var(--graphite);color:#fff;border-color:var(--graphite)}
@@ -344,6 +344,8 @@ footer p{margin:0}
 <div class="acts">
   <button id="bCsv">Download CSV</button>
   <button id="bPrint">Print / PDF</button>
+  <span class="toolpush"></span>
+  <button id="bTop">Back to top</button>
 </div>
 
 </main>
@@ -881,6 +883,11 @@ document.getElementById("bReset").addEventListener("click",()=>{ seed(false); bu
 document.getElementById("bClear").addEventListener("click",()=>{
   if(!window.confirm("Clear every input on this page? The example values can be restored afterwards.")) return;
   seed(true); buildAll();
+});
+document.getElementById("bTop").addEventListener("click",()=>{
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({top:0, behavior: reduce ? "auto" : "smooth"});
+  document.getElementById("bWorkflow").focus({preventScroll:true});
 });
 document.getElementById("bOverall").addEventListener("click",()=>{
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
